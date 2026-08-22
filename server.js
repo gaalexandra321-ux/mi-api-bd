@@ -1,20 +1,23 @@
 const express = require('express');
 const cors = require('cors');
-const config = require('./src/config/environment');
-const studentRoutes = require('./src/infrastructure/routes/studentRoutes');
+const createAppContainer = require('./src/container.js');
+const dbPool = require('./src/infrastructure/database/dbFactory');
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/v1/students', studentRoutes);
+const container = createAppContainer(dbPool);
 
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', driver: config.dbDriver });
-});
+// Rutas definitivas
+app.use('/api/v1/patients', container.patientRouter);
+app.use('/api/v1/doctors', container.doctorRouter);
+app.use('/api/v1/especialidades', container.especialidadRouter);
+app.use('/api/v1/tratamientos', container.tratamientoRouter);
+app.use('/api/v1/citas', container.citaRouter);
+app.use('/api/v1/pagos', container.pagoRouter);
+app.use('/api/v1/insumos', container.insumoRouter);
+app.use('/api/v1/metodos_pago', container.metodoPagoRouter);
 
-app.listen(config.port, () => {
-  console.log(`Servidor ejecutándose en http://localhost:${config.port}`);
-  console.log(`Driver de Base de Datos Activo: ${config.dbDriver}`);
-});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Servidor de la clínica en puerto ${PORT}`));
