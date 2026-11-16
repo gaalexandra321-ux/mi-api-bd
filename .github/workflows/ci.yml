@@ -1,0 +1,33 @@
+name: Continuous Integration (CI)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build, Lint & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Checkout del código
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 3. Instalar dependencias limpias
+        run: npm ci
+
+      - name: 4. Auditoría de Seguridad de Dependencias (DevSecOps)
+        run: npm audit --audit-level=critical || true
+
+      - name: 5. Análisis Estático de Código (Linter / SAST)
+        run: npm run lint
+
+      - name: 6. Ejecución de Pruebas Unitarias
+        run: npm test
